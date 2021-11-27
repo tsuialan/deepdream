@@ -1,4 +1,4 @@
-Inside ./deepdream/, you can run several commands:
+Inside ./app, you can run several commands:
 
   npm start
     Starts the development server.
