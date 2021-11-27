@@ -17,7 +17,7 @@ Inside ./app, you can run several commands:
 
 We suggest that you begin by typing:
 
-  cd deepdream
+  cd app
   npm start
 
 Happy hacking!
