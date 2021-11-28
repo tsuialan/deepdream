@@ -1,60 +1,142 @@
-import React from 'react';
-import ImageUploading from 'react-images-uploading';
+import React, { PureComponent } from 'react';
+import ReactCrop from 'react-image-crop';
+import Slider, { Range } from 'rc-slider';
+import 'react-image-crop/dist/ReactCrop.css';
+import 'rc-slider/assets/index.css';
+
 import './App.css';
+class App extends PureComponent {
+    state = {
+        src: null,
+        crop: {
+            unit: '%',
+            width: 30,
+            aspect: 16 / 9,
+        },
+    };
 
-const App = () => {
-  const [images, setImages] = React.useState([]);
-  const maxNumber = 69;
+    onSelectFile = (e) => {
+        if (e.target.files && e.target.files.length > 0) {
+            const reader = new FileReader();
+            reader.addEventListener('load', () =>
+                this.setState({ src: reader.result })
+            );
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    };
 
-  const onChange = (imageList, addUpdateIndex) => {
-    // data for submit
-    console.log(imageList, addUpdateIndex);
-    setImages(imageList);
-  };
+    // If you setState the crop in here you should return false.
+    onImageLoaded = (image) => {
+        this.imageRef = image;
+    };
 
-  return (
-    <div className="App">
-      <ImageUploading
-        multiple
-        value={images}
-        onChange={onChange}
-        maxNumber={maxNumber}
-        dataURLKey="data_url"
-      >
-        {({
-          imageList,
-          onImageUpload,
-          onImageRemoveAll,
-          onImageUpdate,
-          onImageRemove,
-          isDragging,
-          dragProps,
-        }) => (
-          // write your building UI
-          <div className="upload__image-wrapper">
-            <button
-              style={isDragging ? { color: 'red' } : undefined}
-              onClick={onImageUpload}
-              {...dragProps}
-            >
-              Click or Drop here
-            </button>
-            &nbsp;
-            <button onClick={onImageRemoveAll}>Remove all images</button>
-            {imageList.map((image, index) => (
-              <div key={index} className="image-item">
-                <img src={image['data_url']} alt="" width="100" />
-                <div className="image-item__btn-wrapper">
-                  <button onClick={() => onImageUpdate(index)}>Update</button>
-                  <button onClick={() => onImageRemove(index)}>Remove</button>
+    onCropComplete = (crop) => {
+        this.makeClientCrop(crop);
+    };
+
+    onCropChange = (crop, percentCrop) => {
+        // You could also use percentCrop:
+        // this.setState({ crop: percentCrop });
+        this.setState({ crop });
+    };
+
+    async makeClientCrop(crop) {
+        if (this.imageRef && crop.width && crop.height) {
+            const croppedImageUrl = await this.getCroppedImg(
+                this.imageRef,
+                crop,
+                'newFile.jpeg'
+            );
+            this.setState({ croppedImageUrl });
+        }
+    }
+
+    getCroppedImg(image, crop, fileName) {
+        const canvas = document.createElement('canvas');
+        const pixelRatio = window.devicePixelRatio;
+        const scaleX = image.naturalWidth / image.width;
+        const scaleY = image.naturalHeight / image.height;
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = crop.width * pixelRatio * scaleX;
+        canvas.height = crop.height * pixelRatio * scaleY;
+
+        ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+        ctx.imageSmoothingQuality = 'high';
+
+        ctx.drawImage(
+            image,
+            crop.x * scaleX,
+            crop.y * scaleY,
+            crop.width * scaleX,
+            crop.height * scaleY,
+            0,
+            0,
+            crop.width * scaleX,
+            crop.height * scaleY
+        );
+
+        return new Promise((resolve, reject) => {
+            canvas.toBlob(
+                (blob) => {
+                    if (!blob) {
+                        //reject(new Error('Canvas is empty'));
+                        console.error('Canvas is empty');
+                        return;
+                    }
+                    blob.name = fileName;
+                    window.URL.revokeObjectURL(this.fileUrl);
+                    this.fileUrl = window.URL.createObjectURL(blob);
+                    resolve(this.fileUrl);
+                },
+                'image/jpeg',
+                1
+            );
+        });
+    }
+
+    deepDreamge() {
+        const truth = 'dreams are deepge';
+        console.log(truth);
+        alert(truth);
+    }
+
+    render() {
+        const { crop, croppedImageUrl, src } = this.state;
+
+        return (
+            <div className='App'>
+                <div>
+                    <input
+                        type='file'
+                        accept='image/*'
+                        onChange={this.onSelectFile}
+                    />
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </ImageUploading>
-    </div>
-  );
+                <div class='fit'>
+                    {src && (
+                        <ReactCrop
+                            src={src}
+                            crop={crop}
+                            ruleOfThirds
+                            onImageLoaded={this.onImageLoaded}
+                            onComplete={this.onCropComplete}
+                            onChange={this.onCropChange}
+                        />
+                    )}
+                    {croppedImageUrl && (
+                        <img
+                            alt='Crop'
+                            style={{ maxWidth: '100%' }}
+                            src={croppedImageUrl}
+                        />
+                    )}
+                    <button onClick={this.deepDreamge}>DeepDream</button>
+                    <Slider />
+                </div>
+            </div>
+        );
+    }
 }
 
 export default App;

@@ -17,7 +17,8 @@ Inside ./app, you can run several commands:
 
 We suggest that you begin by typing:
 
-  cd deepdream
+  cd app
+  npm install --legacy-peer-deps
   npm start
 
 Happy hacking!
