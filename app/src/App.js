@@ -13,6 +13,7 @@ class App extends PureComponent {
             width: 30,
             aspect: 16 / 9,
         },
+        bear: '',
     };
 
     onSelectFile = (e) => {
@@ -95,17 +96,21 @@ class App extends PureComponent {
         });
     }
 
-    deepDreamge() {
+    deepDreamge = () => {
         const truth = 'dreams are deepge';
         console.log(truth);
         alert(truth);
+        this.setState({ croppedImageUrl: require('./bear.png') });
     }
 
     render() {
-        const { crop, croppedImageUrl, src } = this.state;
+        const { crop, croppedImageUrl, src, bear } = this.state;
 
         return (
             <div className='App'>
+                <div>
+                    <h1>DEEP DREAMERS</h1>
+                </div>
                 <div>
                     <input
                         type='file'
@@ -113,26 +118,38 @@ class App extends PureComponent {
                         onChange={this.onSelectFile}
                     />
                 </div>
+                <br></br>
                 <div class='fit'>
-                    {src && (
-                        <ReactCrop
-                            src={src}
-                            crop={crop}
-                            ruleOfThirds
-                            onImageLoaded={this.onImageLoaded}
-                            onComplete={this.onCropComplete}
-                            onChange={this.onCropChange}
-                        />
-                    )}
-                    {croppedImageUrl && (
-                        <img
-                            alt='Crop'
-                            style={{ maxWidth: '100%' }}
-                            src={croppedImageUrl}
-                        />
-                    )}
-                    <button onClick={this.deepDreamge}>DeepDream</button>
+                    <div class='row'>
+                        <div class='col'>
+                            {src && (
+                                <ReactCrop
+                                    src={src}
+                                    crop={crop}
+                                    ruleOfThirds
+                                    onImageLoaded={this.onImageLoaded}
+                                    onComplete={this.onCropComplete}
+                                    onChange={this.onCropChange}
+                                />
+                            )}
+                        </div>
+                        <div class='col'>
+                            {croppedImageUrl && (
+                                <img
+                                    alt='Crop'
+                                    style={{ maxWidth: '100%' }}
+                                    src={croppedImageUrl}
+                                />
+                            )}
+                        </div>
+                    </div>
+                    <br></br>
                     <Slider />
+                    <br></br>
+                    <button onClick={this.deepDreamge}>DeepDream</button>
+                    <br></br>
+                    <br></br>
+                    <img src={this.state.bear} />
                 </div>
             </div>
         );
