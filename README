@@ -1,5 +1,9 @@
 *** Now using node v16.13.0 (npm v8.1.0) ***
 
+
+Cameron: In the minimal dir there's an example.py script which calls the
+script and the script returns (transformed img, attn map)
+
 Inside ./app, you can run several commands:
 
   npm start
